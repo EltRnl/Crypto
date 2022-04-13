@@ -10,6 +10,7 @@ typedef struct _{
     uint8_t elem_size;
 } hmap;
 
+/* Usage functions */
 void copy(uint8_t * h, uint8_t * t, int size){
     for(int i=0; i<size; i++)
         t[i]=h[i];
@@ -42,56 +43,45 @@ void find_col(uint8_t h[6], uint8_t m1[16], uint8_t m2[16]){
 
     uint8_t th[6];
     uint64_t c = 0;
-    //
-    while(++c<16777216*6){ // 16777216 is 2^24, aka sqrt(2^48)
+    while(++c<16777216*3){ // 16777216 is 2^24, aka sqrt(2^48)
         copy(h,th,6);
         make_random(m1);
         tcz48_dm(m1,th);
-        if(map->value[((*(uint64_t*)th)*map->elem_size)%UINT32_MAX]!=0 && equals(m1,map->value+(((*(uint64_t*)th)*map->elem_size)%UINT32_MAX),16)==-1){
-            if(check_collision(map->value+(((*(uint64_t*)th)*map->elem_size)%UINT32_MAX),h,th)==1){
-                copy(map->value+(((*(uint64_t*)th)*map->elem_size)%UINT32_MAX),m2,16);
-                printf("Found collision after %ld tries.\n",c);
-                return;
-            }
+        if(map->value[((*(uint64_t*)th)*map->elem_size)%UINT32_MAX]!=0 && equals(m1,map->value+(((*(uint64_t*)th)*map->elem_size)%UINT32_MAX),16)==-1 && check_collision(map->value+(((*(uint64_t*)th)*map->elem_size)%UINT32_MAX),h,th)==1){
+            copy(map->value+(((*(uint64_t*)th)*map->elem_size)%UINT32_MAX),m2,16);
+            copy(th,h,6);
+            break;
         }
         copy(m1,map->value+(((*(uint64_t*)th)*map->elem_size)%UINT32_MAX),16);
+        if(c%16777216==0) printf("Reached %ld steps.\n",c);
     }
+    printf("Reached %ld steps.\n",c);
+    free(map->value);
+    free(map);
 }
 
 /* Takes as input an argument 'd' and writes on the standard output a list of 2^d colliding messages */
 void attack(int d){
+    uint8_t **m1 = (uint8_t **)malloc(d*sizeof(uint8_t*));
+    uint8_t **m2 = (uint8_t **)malloc(d*sizeof(uint8_t*));
+    uint8_t *h = malloc(sizeof(uint8_t)*6);  
+    h[0] = IVB0;h[1] = IVB1;h[2] = IVB2;h[3] = IVB3;h[4] = IVB4;h[5] = IVB5;
 
+    for(int i=0; i<d; i++){
+        m1[i] = malloc(sizeof(uint8_t)*16);
+        m2[i] = malloc(sizeof(uint8_t)*16);
+        find_col(h,m1[i],m2[i]);
+        printf("Collision #%d found.\n",i+1);
+    }
 }
 
-int main(){
-    uint8_t *m1 = malloc(sizeof(uint8_t)*16);
-    uint8_t *m2 = malloc(sizeof(uint8_t)*16);
-    uint8_t *h = malloc(sizeof(uint8_t)*8);
-    uint8_t *h2 = malloc(sizeof(uint8_t)*8);
-    
-
-    h[0] = IVB0;
-    h[1] = IVB1;
-    h[2] = IVB2;
-    h[3] = IVB3;
-    h[4] = IVB4;
-    h[5] = IVB5;
-
-    h2[0] = IVB0;
-    h2[1] = IVB1;
-    h2[2] = IVB2;
-    h2[3] = IVB3;
-    h2[4] = IVB4;
-    h2[5] = IVB5;
-
-    
+/* Main function to call the attack */
+int main(int argc, char ** argv){
+    if(argc<2) return -1;
     clock_t begin = clock();
-    find_col(h,m1,m2);
+    attack(atoi(argv[1]));
     clock_t end = clock();
-    tcz48_dm(m1,h);
-    tcz48_dm(m2,h2);
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("Got messages after %lf seconds :\n\t%llx = %lx\n\t%llx = %lx\n",time_spent,(unsigned long long)(*(__uint128_t*)m1 & 0xFFFFFFFFFFFFFFFF),*(__uint64_t*)h,(unsigned long long)(*(__uint128_t*)m2 & 0xFFFFFFFFFFFFFFFF),*(__uint64_t*)h2);
-    
+    printf("Got messages after %lf seconds\n",time_spent);
     return 0;
 }
