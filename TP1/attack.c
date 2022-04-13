@@ -54,9 +54,13 @@ void find_col(uint8_t h[6], uint8_t m1[16], uint8_t m2[16]){
             break;
         }
         copy(m1,map->value+(((*(uint64_t*)th)*map->elem_size)%UINT32_MAX),16);
+        #ifdef VERBOSE
         if(c%16777216==0) printf("Reached %ld steps.\n",c);
+        #endif
     }
+    #ifdef VERBOSE
     printf("Reached %ld steps.\n",c);
+    #endif
     free(map->value);
     free(map);
 }
@@ -72,9 +76,17 @@ void attack(int d){
         m1[i] = malloc(sizeof(uint8_t)*16);
         m2[i] = malloc(sizeof(uint8_t)*16);
         find_col(h,m1[i],m2[i]);
+        #ifdef VERBOSE
         printf("Collision #%d found.\n",i+1);
+        #endif
     }
     print_2powN(m1,m2,d);
+    for(int i=0; i<d; i++){
+        free(m1[i]);
+        free(m2[i]);
+    }
+    free(m1);
+    free(m2);
 }
 
 /* Main function to call the attack */
