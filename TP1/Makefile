@@ -1,13 +1,11 @@
 CC=gcc
 CCFLAGS=-Wall -g -O
 LDFLAGS=
-SOURCES=$(wildcard *.c)
-OBJECTS=$(SOURCES:.c=.o)
 TARGET=attack
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS)
+attack: attack.o mc48.o printhash.o
 	$(CC) -o $@ $^ $(LDFLAGS) 
 
 %.o: %.c %.h
