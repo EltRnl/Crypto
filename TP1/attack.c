@@ -3,6 +3,7 @@
 #include <time.h>
 #include "mc48.h"
 #include "xoshiro256starstar.h"
+#include "printhash.h"
 
 typedef struct _{
     uint8_t *value;
@@ -73,6 +74,7 @@ void attack(int d){
         find_col(h,m1[i],m2[i]);
         printf("Collision #%d found.\n",i+1);
     }
+    print_2powN(m1,m2,d);
 }
 
 /* Main function to call the attack */
