@@ -55,11 +55,11 @@ void find_col(uint8_t h[6], uint8_t m1[16], uint8_t m2[16]){
         }
         copy(m1,map->value+(((*(uint64_t*)th)*map->elem_size)%UINT32_MAX),16);
         #ifdef VERBOSE
-        if(c%16777216==0) printf("Reached %ld steps.\n",c);
+        if(c%16777216==0) fprintf(stderr,"Reached %ld steps.\n",c);
         #endif
     }
     #ifdef VERBOSE
-    printf("Reached %ld steps.\n",c);
+    fprintf(stderr,"Reached %ld steps.\n",c);
     #endif
     free(map->value);
     free(map);
@@ -77,7 +77,7 @@ void attack(int d){
         m2[i] = malloc(sizeof(uint8_t)*16);
         find_col(h,m1[i],m2[i]);
         #ifdef VERBOSE
-        printf("Collision #%d found.\n",i+1);
+        fprintf(stderr,"Collision #%d found.\n",i+1);
         #endif
     }
     print_2powN(m1,m2,d);
@@ -96,6 +96,6 @@ int main(int argc, char ** argv){
     attack(atoi(argv[1]));
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("Got messages after %lf seconds\n",time_spent);
+    fprintf(stderr,"Got messages after %lf seconds\n",time_spent);
     return 0;
 }

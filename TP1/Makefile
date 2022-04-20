@@ -2,7 +2,7 @@ CC=gcc
 CCFLAGS=-g -O
 LDFLAGS=
 SOURCE=mc48.o printhash.o
-TARGET=attack run_hash
+TARGET=attack #run_hash
 
 # Variable to define print type
 ifeq ($(PRINTTYPE),1)
@@ -27,8 +27,8 @@ all: $(TARGET)
 attack: attack.o $(SOURCE)
 	$(CC) -o $@ $^ $(LDFLAGS) 
 
-run_hash: run_hash.o $(SOURCE)
-	$(CC) -o $@ $^ $(LDFLAGS)
+# run_hash: run_hash.o $(SOURCE)
+# 	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c %.h
 	$(CC) $(CCFLAGS) -c $<
