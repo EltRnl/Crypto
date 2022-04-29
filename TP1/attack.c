@@ -12,10 +12,9 @@ typedef struct _{
 } hmap;
 
 /* Usage functions */
-void copy(uint8_t * h, uint8_t * t, int size){
-    for(int i=0; i<size; i++)
-        t[i]=h[i];
-}
+void copy(uint8_t * h, uint8_t * t, int size){ for(int i=0; i<size; i++) t[i]=h[i];}
+void make_random(uint8_t m[16]){ for(int i=0; i<16; i++) m[i] = xoshiro256starstar_random();}
+
 int equals(uint8_t * m1, uint8_t * m2, int size){
     for(int i=0; i<size; i++){
         if(m1[i]!=m2[i])
@@ -28,11 +27,6 @@ int check_collision(uint8_t *m, uint8_t *h, uint8_t *th){
     copy(h,nh,6);
     tcz48_dm(m,nh);
     return equals(th,nh,6);
-}
-void make_random(uint8_t m[16]){
-    for(int i=0; i<16; i++){
-        m[i] = xoshiro256starstar_random();
-    }
 }
 
 /* Searches for a collision for the compression function tcz48_dm*/
@@ -91,6 +85,9 @@ void attack(int d){
 
 /* Main function to call the attack */
 int main(int argc, char ** argv){
+    // uint64_t seed[4] = {1,1,1,1};
+    // xoshiro256starstar_random_set(seed);
+    
     if(argc<2) return -1;
     clock_t begin = clock();
     attack(atoi(argv[1]));
